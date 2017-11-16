@@ -1,14 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <title>UV-Touch Music</title>
-		<link rel="stylesheet" href="css/reset.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>UV-Touch Music</title>
+  <link rel="stylesheet" href="css/reset.min.css">
 </head>
-<body>
-		<div id="view"></div>
-		<script src="js/pixi.min.js"></script>
-		<script src="js/pixi-sound.js"></script>
+<body onload='init();'>
+  <div id="view"></div>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/pixi.min.js"></script>
+  <script src="js/pixi-sound.js"></script>
+	<script src="js/TweenMax.min.js"></script>
+  <script>
+  function init(){
+    var app = new PIXI.Application(640,1030);
+    $('#view').append(app.view);
+
+    $('#view,canvas').css({
+      'position':'absolute',
+      'width':'100%',
+      'height':'100%',
+      'top':'0px',
+      'left':'0px'
+    });
+
+    var loader = new PIXI.loaders.Loader();
+    loader.add(['sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png']);
+    loader.on('progress',function (load,res){
+    });
+    loader.load(start);
+
+    function start(){    //初始化
+      var mainMusic = {};
+      $.get('js/main.json',function (data,status){
+        if(status == 'success'){
+          mainMusic = data;
+        }else{
+          console.error(status)
+        }
+      });
+
+      var trackMusic = {};
+      $.get('js/track.json',function (data,status){
+        if(status == 'success'){
+          trackMusic = data;
+        }else{
+          console.error(status)
+        }
+      });
+
+      bg();
+    }
+
+    class centerImg extends PIXI.Sprite{
+      constructor(x,y,img){
+        super();
+        this.texture = PIXI.Texture.fromImage(img);
+        this.anchor.set(0.5);
+        this.x = x;
+        this.y = y;
+      }
+    }
+
+    function bg(){
+      let bg = new PIXI.Graphics();
+      bg.beginFill(Math.random()*0xffffff).drawRect(0,0,640,1030);
+      app.stage.addChild(bg);
+      cover();
+    }
+
+    function cover(){       //封面
+      var cover = new PIXI.Container();
+      app.stage.addChild(cover);
+      var title = new centerImg(320,200,'images/title.png');
+      var start = new centerImg(320,500,'images/start.png');
+      var copyRight = new centerImg(320,900,'images/copyright.png');
+      cover.addChild(title,start,copyRight);
+
+    }
+
+
+
+
+
+  };
+  </script>
 </body>
 </html>
