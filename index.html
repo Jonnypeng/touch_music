@@ -5,9 +5,22 @@
   <meta charset="UTF-8">
   <title>UV-Touch Music</title>
   <link rel="stylesheet" href="css/reset.min.css">
+  <style>
+  div#num {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: red;
+    color: white;
+    text-align: center;
+    padding: 60% 0% 0% 0%;
+    font-size: 2rem;
+}
+  </style>
 </head>
 <body onload='init();'>
   <div id="view"></div>
+  <div id="num"></div>
   <script src="js/jquery.min.js"></script>
   <script src="js/pixi.min.js"></script>
   <script src="js/pixi-sound.js"></script>
@@ -28,6 +41,7 @@
     var loader = new PIXI.loaders.Loader();
     loader.add(['js/main.json','sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png','images/touchBtn.json','images/p1.webp'])
     loader.on('progress',function (load,res){
+      document.getElementById('num').innerHTML = load.progress + '%';
     });
     loader.load(bg);
 
@@ -52,6 +66,8 @@
     }
 
     function bg(){
+      document.getElementById('num').style.display = 'none';
+
       let bg = new PIXI.Graphics();
       bg.beginFill(Math.random()*0xffffff).drawRect(0,0,640,1030);
       app.stage.addChildAt(bg,0);
