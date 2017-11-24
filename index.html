@@ -39,7 +39,7 @@
     });
 
     var loader = new PIXI.loaders.Loader();
-    loader.add(['js/main.json','sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png','images/touchBtn.json','images/p1.webp'])
+    loader.add(['js/main.json','sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png','images/touchBtn.json','images/p1.png'])
     loader.on('progress',function (load,res){
       document.getElementById('num').innerHTML = load.progress + '%';
     });
@@ -155,8 +155,8 @@
           })
         };
 
-        var p1Img = new centerImg(640/2,1030/2,'images/p1.webp');
-        p1Img.alpha = 0.5;
+        var p1Img = new centerImg(640/2,1030/2,'images/p1.png');
+        p1Img.blendMode = PIXI.BLEND_MODES.ADD;
         app.stage.addChildAt(p1Img,2);
 
         var g1 = new PIXI.Graphics();
@@ -240,6 +240,8 @@
           touchBtn.position = obj;
           touchBtn.gotoAndPlay(0);
 
+          p1Img.alpha = 1;
+
           var p1 = {x:obj.x,y:obj.y};
           var p2 = new PIXI.Point(Math.random()*640,Math.random()*1030);
           var p3 = new PIXI.Point(Math.random()*640,Math.random()*1030);
@@ -276,7 +278,7 @@
             },
             'yoyo':true,
             onComplete:function (){
-              new TweenMax(g2,1,{
+              new TweenMax([g2,p1Img],1,{
                 'alpha':0
               });
             }
