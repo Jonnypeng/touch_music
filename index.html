@@ -11,7 +11,7 @@
   <script src="js/jquery.min.js"></script>
   <script src="js/pixi.min.js"></script>
   <script src="js/pixi-sound.js"></script>
-	<script src="js/TweenMax.min.js"></script>
+  <script src="js/TweenMax.min.js"></script>
   <script>
   function init(){
     var app = new PIXI.Application(640,1030);
@@ -26,7 +26,7 @@
     });
 
     var loader = new PIXI.loaders.Loader();
-    loader.add(['js/main.json','sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png']);
+    loader.add(['js/main.json','sounds/bg.mp3','images/info.png','images/copyright.png','images/title.png','images/start.png','images/touchBtn.json','images/p1.webp'])
     loader.on('progress',function (load,res){
     });
     loader.load(bg);
@@ -41,72 +41,6 @@
       }
     }
 
-
-    var ani = new PIXI.Graphics();
-
-    function mkAni1(obj){
-
-
-      ani.clear();
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(0,0)
-    .lineTo(320,0)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(320,0)
-    .lineTo(640,0)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(0,1030)
-    .lineTo(320,1030)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(320,1030)
-    .lineTo(640,1030)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(0,0)
-    .lineTo(0,1030/2)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(0,1030/2)
-    .lineTo(0,1030)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(640,0)
-    .lineTo(640,1030/2)
-    .closePath()
-
-    ani.beginFill(Math.random()*0xffffff)
-    .moveTo(obj.x,obj.y)
-    .lineTo(640,1030/2)
-    .lineTo(640,1030)
-    .closePath()
-
-    app.stage.addChild(ani);
-    };
-
-    function mkAni2(){
-    ani.beginFill(Math.random()*0xffffff)
-    .lineTo(Math.random()*640,Math.random()*1030)
-    .lineTo(Math.random()*640,Math.random()*1030)
-    .lineTo(Math.random()*640,Math.random()*1030)
-    app.stage.addChild(ani);
-    };
-
     class grid extends PIXI.Graphics{
       constructor(x,y,w,h,mainMusic){
         super();
@@ -114,21 +48,6 @@
         this.x = x;
         this.y = y;
         this.interactive = true;
-        this.on('touchstart',function (event){
-          this.ani(event);
-          this.sound(mainMusic);
-        });
-        app.stage.addChild(this);
-      }
-      ani(event){
-        console.log(1);
-        mkAni1(event.data.global);
-      }
-      sound(mainMusic){
-        let music = new PIXI.sound.Sound.from({
-          url:mainMusic[Math.floor(Math.random()*31) + '.mp3'],
-          autoPlay:true
-        })
       }
     }
 
@@ -161,7 +80,22 @@
       });
     }
 
+
+
     function gotoPlay(){
+      var bgMusic = new PIXI.sound.Sound.from({
+        url:'sounds/bg.mp3',
+        autoPlay:true
+      });
+
+
+      var touchBtn_fps = [];
+      for(let i = 0; i < 20;i++){
+        i = (i < 10) ? '0' + i : i;
+        touchBtn_fps.push(PIXI.Texture.fromFrame('touch00' + i));
+      };
+
+
       var mainMusic = {};
       $.get('js/main.json',function (data,status){
         if(status == 'success'){
@@ -173,26 +107,169 @@
       });
 
       function drawGrid(){
-        var grids = [];
+        var grids = new PIXI.Container;
+        app.stage.addChildAt(grids,1);
 
         for(let x = 0;x<4;x++){
           for(let y = 0; y<8;y++ ){
-            grids.push(
-              new grid(x*(640/4),y*(1030/8),640/4,1030/8,mainMusic)
-            );
+            grids.addChild(new grid(x*(640/4),y*(1030/8),640/4,1030/8));
           }
-        }
+        };
 
-        console.log(grids);
+        var info = new PIXI.Sprite.fromImage('images/info.png');
+        info.anchor.set(0.5);
+        info.x = app.screen.width / 2;
+        info.y = app.screen.height / 2;
+        info.scale.set(2);
+        app.stage.addChildAt(info,2);
+
+
+        grids.children.forEach(function (p){
+          p.on('touchstart',function (event){
+            sound();
+            ani1(event.data.global);
+            ani2(event.data.global);
+          });
+        });
+
+        function sound(){
+          let music = new PIXI.sound.Sound.from({
+            url:mainMusic[Math.floor(Math.random()*31) + '.mp3'],
+            autoPlay:true
+          })
+        };
+
+        var p1Img = new centerImg(640/2,1030/2,'images/p1.webp');
+        p1Img.alpha = 0.5;
+        app.stage.addChildAt(p1Img,2);
+
+        var g1 = new PIXI.Graphics();
+        g1.alpha = 0.4;
+        app.stage.addChildAt(g1,3);
+        function ani1(obj){
+          g1.clear();
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(0,0)
+          .lineTo(320,0)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(320,0)
+          .lineTo(640,0)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(0,1030)
+          .lineTo(320,1030)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(320,1030)
+          .lineTo(640,1030)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(0,0)
+          .lineTo(0,1030/2)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(0,1030/2)
+          .lineTo(0,1030)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(640,0)
+          .lineTo(640,1030/2)
+          .closePath()
+
+          g1.beginFill(Math.random()*0xffffff)
+          .moveTo(obj.x,obj.y)
+          .lineTo(640,1030/2)
+          .lineTo(640,1030)
+          .closePath()
+
+          g1.alpha = 0;
+          new TweenMax(g1,0.5,{
+            alpha:1,
+            onComplete:function (){
+              new TweenMax(g1,0.5,{
+                alpha:0
+              });
+            }
+          });
+        };
+
+        var g2 = new PIXI.Graphics();
+        app.stage.addChildAt(g2,4);
+
+          let cir = new PIXI.Graphics();
+          cir.beginFill(Math.random()*0xffffff).drawCircle(0,0,4);
+          app.stage.addChildAt(cir,5);
+
+      var touchBtn = new PIXI.extras.AnimatedSprite(touchBtn_fps);
+      touchBtn.anchor.set(0.5);
+      touchBtn.loop = false;
+      app.stage.addChildAt(touchBtn,6);
+
+        function ani2(obj){
+          touchBtn.tint = 0xFFFFFF * Math.random();
+          touchBtn.position = obj;
+          touchBtn.gotoAndPlay(0);
+
+          var p1 = {x:obj.x,y:obj.y};
+          var p2 = new PIXI.Point(Math.random()*640,Math.random()*1030);
+          var p3 = new PIXI.Point(Math.random()*640,Math.random()*1030);
+          var p4 = new PIXI.Point(Math.random()*640,Math.random()*1030);
+
+          var points = [
+            p1,p2,p2,
+            p2,p3,
+            p4,p4,
+            p1,p1
+          ];
+
+          g2.clear();
+          g2.beginFill(Math.random()*0xffffff)
+          .moveTo(p1.x,p1.y)
+          .lineTo(p2.x,p2.y)
+          .lineTo(p3.x,p3.y)
+          .lineTo(p4.x,p4.y)
+          .lineTo(p1.x,p1.y)
+          .closePath();
+
+          cir.clear();
+          cir.beginFill(Math.random()*0xffffff).drawCircle(0,0,100);
+
+          g2.alpha = 0.3;
+
+          p1Img.mask = cir;
+
+
+          new TweenMax(cir,0.3,{
+            'bezier':{
+              'values':points,
+              'type':'quadratic',
+            },
+            'yoyo':true,
+            onComplete:function (){
+              new TweenMax(g2,1,{
+                'alpha':0
+              });
+            }
+          });
+
+        };
 
       };
-
     };
-
-
-
-
-
   };
   </script>
 </body>
